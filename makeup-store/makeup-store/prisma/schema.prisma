@@ -8,8 +8,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum ProductSource {
@@ -68,8 +69,8 @@ model Order {
 
   totalAmount       Int         // em centavos
 
-  mpPaymentId       String?     // id do pagamento no Mercado Pago
-  mpPreferenceId    String?
+  paymentId         String?     // id do pagamento no UniPay
+  paymentReference  String?     // referencia do pagamento no UniPay
 
   items             OrderItem[]
 

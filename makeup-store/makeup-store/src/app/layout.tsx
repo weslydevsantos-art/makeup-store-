@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart-context";
+import { AdminNameProvider } from "@/lib/admin-name-context";
 import { ToastProvider } from "@/components/toast";
 import { Header } from "@/components/header";
 
@@ -20,10 +21,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <CartProvider>
-          <ToastProvider>
-            <Header />
-            <main style={{ minHeight: "calc(100vh - 60px)" }}>{children}</main>
-          </ToastProvider>
+          <AdminNameProvider>
+            <ToastProvider>
+              <Header />
+              <main style={{ minHeight: "calc(100vh - 60px)" }}>{children}</main>
+            </ToastProvider>
+          </AdminNameProvider>
         </CartProvider>
       </body>
     </html>

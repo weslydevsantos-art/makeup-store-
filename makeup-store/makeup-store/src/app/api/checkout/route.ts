@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { createPaymentPreference } from "@/lib/mercadopago";
+import { createPayment } from "@/lib/unipay";
 
 const checkoutSchema = z.object({
   customerName: z.string().min(1),
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
   const data = parsed.data;
 
-  // Busca os produtos reais no banco (nunca confia no preço vindo do front)
+  // Busca os produtos reais no banco (nunca confia no preco vindo do front)
   const productIds = data.items.map((i) => i.productId);
   const products = await prisma.product.findMany({
     where: { id: { in: productIds }, active: true }
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
   if (products.length !== data.items.length) {
     return NextResponse.json(
-      { error: "Um ou mais produtos não foram encontrados ou estão inativos." },
+      { error: "Um ou mais produtos nao foram encontrados ou estao inativos." },
       { status: 400 }
     );
   }
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     return sum + product.price * item.quantity;
   }, 0);
 
-  // Cria o pedido em PENDING_PAYMENT + os itens (com snapshot de preço/nome/source)
+  // Cria o pedido em PENDING_PAYMENT + os itens (com snapshot de preco/nome/source)
   const order = await prisma.order.create({
     data: {
       customerName: data.customerName,
@@ -76,27 +76,36 @@ export async function POST(req: NextRequest) {
     }
   });
 
-  const preference = await createPaymentPreference({
+  // Cria o pagamento no UniPay
+  const payment = await createPayment({
     orderId: order.id,
     payerEmail: data.customerEmail,
+    payerName: data.customerName,
+    payerPhone: data.customerPhone,
     items: data.items.map((item) => {
       const product = products.find((p) => p.id === item.productId)!;
       return {
         id: product.id,
         title: product.name,
         quantity: item.quantity,
-        unitPrice: product.price / 100
+        unitPrice: product.price
       };
     })
   });
 
+  // Atualiza o pedido com a referencia do pagamento
   await prisma.order.update({
     where: { id: order.id },
-    data: { mpPreferenceId: preference.id }
+    data: {
+      paymentId: payment.id,
+      paymentReference: payment.reference
+    }
   });
 
   return NextResponse.json({
     orderId: order.id,
-    checkoutUrl: preference.init_point
+    checkoutUrl: payment.checkoutUrl,
+    pixQrCode: payment.pixQrCode,
+    pixCopyPaste: payment.pixCopyPaste
   });
 }

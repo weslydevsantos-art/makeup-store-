@@ -154,7 +154,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                 <rect width="20" height="14" x="2" y="5" rx="2"/>
                 <path d="M2 10h20"/>
               </svg>
-              Pagamento via Mercado Pago
+              Pagamento seguro com Pix ou cartao
             </div>
           </div>
         </div>

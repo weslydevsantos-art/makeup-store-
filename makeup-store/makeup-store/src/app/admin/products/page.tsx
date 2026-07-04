@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/components/toast";
+import { useAdminName } from "@/lib/admin-name-context";
 import Link from "next/link";
 
 type Product = {
@@ -23,6 +24,7 @@ export default function AdminProductsPage() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
+  const { adminName, setAdminName } = useAdminName();
 
   const [form, setForm] = useState({
     name: "",
@@ -134,6 +136,11 @@ export default function AdminProductsPage() {
           </svg>
           Voltar
         </Link>
+        {adminName && (
+          <p style={{ color: "var(--color-rose)", fontSize: "1rem", marginBottom: "0.5rem" }}>
+            Ola, {adminName}!
+          </p>
+        )}
         <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2rem", marginBottom: "0.5rem" }}>
           Meus Produtos
         </h1>
@@ -154,21 +161,30 @@ export default function AdminProductsPage() {
           }}
         >
           <p style={{ marginBottom: "1rem", color: "var(--color-charcoal)" }}>
-            Digite a senha para acessar:
+            Digite seu nome (opcional) e a senha para acessar:
           </p>
-          <div style={{ display: "flex", gap: "0.75rem" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
             <input
-              type="password"
-              placeholder="Senha"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && loadProducts()}
+              type="text"
+              placeholder="Seu nome (ex: Ana Luiza)"
+              value={adminName}
+              onChange={(e) => setAdminName(e.target.value)}
               className="input"
-              style={{ flex: 1 }}
             />
-            <button onClick={loadProducts} className="btn btn-primary" disabled={loading}>
-              {loading ? "Entrando..." : "Entrar"}
-            </button>
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              <input
+                type="password"
+                placeholder="Senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && loadProducts()}
+                className="input"
+                style={{ flex: 1 }}
+              />
+              <button onClick={loadProducts} className="btn btn-primary" disabled={loading}>
+                {loading ? "Entrando..." : "Entrar"}
+              </button>
+            </div>
           </div>
         </div>
       )}

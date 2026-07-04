@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/components/toast";
+import { useAdminName } from "@/lib/admin-name-context";
 import Link from "next/link";
 
 type Order = {
@@ -33,6 +34,7 @@ export default function AdminOrdersPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
+  const { adminName, setAdminName } = useAdminName();
 
   async function loadOrders() {
     setLoading(true);
@@ -97,6 +99,11 @@ export default function AdminOrdersPage() {
           </svg>
           Voltar
         </Link>
+        {adminName && (
+          <p style={{ color: "var(--color-rose)", fontSize: "1rem", marginBottom: "0.5rem" }}>
+            Ola, {adminName}!
+          </p>
+        )}
         <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2rem", marginBottom: "0.5rem" }}>
           Meus Pedidos
         </h1>
@@ -117,21 +124,30 @@ export default function AdminOrdersPage() {
           }}
         >
           <p style={{ marginBottom: "1rem", color: "var(--color-charcoal)" }}>
-            Digite a senha para ver os pedidos:
+            Digite seu nome (opcional) e a senha para ver os pedidos:
           </p>
-          <div style={{ display: "flex", gap: "0.75rem" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
             <input
-              type="password"
-              placeholder="Senha"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && loadOrders()}
+              type="text"
+              placeholder="Seu nome (ex: Ana Luiza)"
+              value={adminName}
+              onChange={(e) => setAdminName(e.target.value)}
               className="input"
-              style={{ flex: 1 }}
             />
-            <button onClick={loadOrders} className="btn btn-primary" disabled={loading}>
-              {loading ? "Carregando..." : "Entrar"}
-            </button>
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              <input
+                type="password"
+                placeholder="Senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && loadOrders()}
+                className="input"
+                style={{ flex: 1 }}
+              />
+              <button onClick={loadOrders} className="btn btn-primary" disabled={loading}>
+                {loading ? "Carregando..." : "Entrar"}
+              </button>
+            </div>
           </div>
         </div>
       )}

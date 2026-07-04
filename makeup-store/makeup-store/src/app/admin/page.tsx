@@ -1,6 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useAdminName } from "@/lib/admin-name-context";
 
 export default function AdminHomePage() {
+  const { adminName } = useAdminName();
+
   return (
     <div
       className="container"
@@ -14,6 +19,17 @@ export default function AdminHomePage() {
       }}
     >
       <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+        {adminName && (
+          <p
+            style={{
+              color: "var(--color-rose)",
+              fontSize: "1rem",
+              marginBottom: "0.5rem",
+            }}
+          >
+            Ola, {adminName}!
+          </p>
+        )}
         <h1
           style={{
             fontFamily: "var(--font-display)",

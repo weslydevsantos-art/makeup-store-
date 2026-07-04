@@ -465,7 +465,7 @@ export default function CheckoutPage() {
                   <rect width="20" height="14" x="2" y="5" rx="2" />
                   <path d="M2 10h20" />
                 </svg>
-                Pagar com Mercado Pago
+                Pagar com UniPay
               </>
             )}
           </button>
@@ -478,7 +478,7 @@ export default function CheckoutPage() {
               marginTop: "1rem",
             }}
           >
-            Voce sera redirecionada para o Mercado Pago
+            Voce sera redirecionado para o pagamento
           </p>
         </div>
       </div>
