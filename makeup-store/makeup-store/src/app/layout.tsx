@@ -1,15 +1,31 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { CartProvider } from "@/lib/cart-context";
+import { ToastProvider } from "@/components/toast";
+import { Header } from "@/components/header";
 
 export const metadata: Metadata = {
-  title: "Loja de Maquiagem",
-  description: "Maquiagem com envio rápido — estoque próprio e parceiros selecionados."
+  title: "Belle - Maquiagem com Amor",
+  description: "Maquiagem com envio rapido - estoque proprio e parceiros selecionados.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <head>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'%F0%9F%92%84</text></svg>" />
+      </head>
+      <body>
+        <CartProvider>
+          <ToastProvider>
+            <Header />
+            <main style={{ minHeight: "calc(100vh - 60px)" }}>{children}</main>
+          </ToastProvider>
+        </CartProvider>
+      </body>
     </html>
   );
 }
