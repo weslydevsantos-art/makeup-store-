@@ -1,0 +1,24 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1a1a1a;
+  background: #fff;
+}
+
+/* Esqueleto minimalista — o visual final fica por conta do Bolt/Lovable */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+  padding: 24px;
+}
+
+.card {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 16px;
+}

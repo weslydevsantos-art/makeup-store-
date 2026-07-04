@@ -1,0 +1,98 @@
+// Schema do banco da loja de maquiagem
+// Modela dois tipos de produto na mesma loja:
+//  - OWN_STOCK: você compra, guarda e envia
+//  - DROPSHIP_JESSIMAKE: a fornecedora envia direto pro cliente
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProductSource {
+  OWN_STOCK
+  DROPSHIP_JESSIMAKE
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT   // aguardando pagamento
+  PAID              // pago, aguardando processamento
+  PROCESSING        // parte própria separada / repasse dropship em andamento
+  SHIPPED           // tudo enviado
+  DELIVERED
+  CANCELED
+}
+
+// Status específico do repasse pra fornecedora (só importa pra itens dropship)
+enum SupplierHandoffStatus {
+  NOT_APPLICABLE   // item é OWN_STOCK
+  PENDING          // pago, ainda não repassado pra fornecedora
+  HANDED_OFF       // mensagem de repasse já foi enviada (manual, via WhatsApp)
+  SHIPPED_BY_SUPPLIER
+}
+
+model Product {
+  id            String        @id @default(cuid())
+  name          String
+  slug          String        @unique
+  description   String?
+  imageUrl      String?
+  price         Int           // em centavos, preço de venda pro cliente
+  costPrice     Int           // em centavos, seu custo (compra ou custo dela)
+  source        ProductSource
+  supplierSku   String?       // referência do produto na Jessi Make (obrigatório se DROPSHIP)
+  stockQty      Int           @default(0) // só relevante pra OWN_STOCK
+  active        Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  orderItems    OrderItem[]
+
+  @@index([source])
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  status            OrderStatus @default(PENDING_PAYMENT)
+
+  customerName      String
+  customerEmail     String
+  customerPhone     String
+  shippingAddress   String
+  shippingCity      String
+  shippingState     String
+  shippingZip       String
+
+  totalAmount       Int         // em centavos
+
+  mpPaymentId       String?     // id do pagamento no Mercado Pago
+  mpPreferenceId    String?
+
+  items             OrderItem[]
+
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+model OrderItem {
+  id                 String                 @id @default(cuid())
+  order              Order                  @relation(fields: [orderId], references: [id])
+  orderId            String
+  product            Product                @relation(fields: [productId], references: [id])
+  productId          String
+
+  // snapshot no momento da compra (produto pode mudar de preço depois)
+  productName        String
+  unitPrice          Int
+  quantity           Int
+  source             ProductSource
+
+  handoffStatus      SupplierHandoffStatus  @default(NOT_APPLICABLE)
+  handoffAt          DateTime?
+  supplierTracking    String?
+
+  @@index([handoffStatus])
+}
